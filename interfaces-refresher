@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# Copyright (c) 2023, Akbar Rifai.
+#
+
+ifup mm
+ifup wwan0
+
+# cleanup interfaces-leasetime-checker
+atq -q r | awk '{ print $1 }' | xargs atrm

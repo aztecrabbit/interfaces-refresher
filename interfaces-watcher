@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Copyright (c) 2023, Akbar Rifai.
+#
+
+IF1="mm"
+IF2="wwan0"
+
+IF1_up=$(ifstatus $IF1 | jq -r '"\(.up)"')
+
+timestamp=$(date +%s)
+
+IF2_data=$(ifstatus $IF2 | jq -r '"\(.up) \(.uptime) \(.data.leasetime)"')
+IF2_up=$(echo $IF2_data | awk '{ print $1 }')
+
+if [[ $IF1_up == "false" ]] || [[ $IF2_up == "false" ]]; then
+  /root/interfaces-refresher
+  exit 0
+fi
+
+# check if interfaces-leasetime-checker is already added
+if [[ "$(atq -q r | wc -l)" -gt 0 ]]; then
+  exit 0
+fi
+
+IF2_uptime=$(echo $IF2_data | awk '{ print $2 }')
+IF2_leasetime=$(echo $IF2_data | awk '{ print $3 }')
+
+datetime_refresh_interfaces=$(date -d "@$((($timestamp-$IF2_uptime)+$IF2_leasetime))" +"%H:%M")
+
+# send to at
+at -q r -f /root/interfaces-leasetime-checker "$datetime_refresh_interfaces"
