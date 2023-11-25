@@ -3,6 +3,8 @@
 # Copyright (c) 2023, Akbar Rifai.
 #
 
+touch /tmp/interfaces-refresher.lck
+
 ifup mm
 ifup wwan0
 
