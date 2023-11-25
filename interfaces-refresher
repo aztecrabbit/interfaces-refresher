@@ -5,6 +5,9 @@
 
 touch /tmp/interfaces-refresher.lck
 
+ifdown mm
+ifdown wwan0
+
 ifup mm
 ifup wwan0
 
