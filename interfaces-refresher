@@ -6,5 +6,5 @@
 ifup mm
 ifup wwan0
 
-# cleanup interfaces-leasetime-checker
+# cleanup interfaces-refresher
 atq -q r | awk '{ print $1 }' | xargs atrm

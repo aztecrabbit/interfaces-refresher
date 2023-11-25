@@ -18,7 +18,7 @@ if [[ $IF1_up == "false" ]] || [[ $IF2_up == "false" ]]; then
   exit 0
 fi
 
-# check if interfaces-leasetime-checker is already added
+# check if interfaces-refresher is already added
 if [[ "$(atq -q r | wc -l)" -gt 0 ]]; then
   exit 0
 fi
@@ -26,7 +26,13 @@ fi
 IF2_uptime=$(echo $IF2_data | awk '{ print $2 }')
 IF2_leasetime=$(echo $IF2_data | awk '{ print $3 }')
 
-datetime_refresh_interfaces=$(date -d "@$((($timestamp-$IF2_uptime)+$IF2_leasetime))" +"%H:%M")
+datetime_refresh_interfaces_timestamp=$((($timestamp-$IF2_uptime-60)+$IF2_leasetime))
+datetime_refresh_interfaces=$(date -d "@$datetime_refresh_interfaces_timestamp" +"%H:%M")
+
+if [[ $(($datetime_refresh_interfaces_timestamp-60)) -le $(date +%s) ]]; then
+  /root/interfaces-refresher
+  exit 0
+fi
 
 # send to at
-at -q r -f /root/interfaces-leasetime-checker "$datetime_refresh_interfaces"
+at -q r -f /root/interfaces-refresher "$datetime_refresh_interfaces"
