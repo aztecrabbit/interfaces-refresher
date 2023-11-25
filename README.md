@@ -29,7 +29,7 @@ Run chmod to be able to execute that files.
 `Menu > System > Scheduled Tasks`
 
 ```
-*/1 * * * * sleep 30; /root/interfaces-watcher
+*/1 * * * * sleep 50; /root/interfaces-watcher
 ```
 
 That code will execute `/root/interfaces-watcher` every minute. `Recommended`.
