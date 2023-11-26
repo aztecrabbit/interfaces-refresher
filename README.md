@@ -4,7 +4,7 @@ Requirements
 ------------
 
 ```
-# opkg update && opkg install at
+# opkg update && opkg install at jq
 ```
 
 
@@ -29,7 +29,7 @@ Run chmod to be able to execute that files.
 `Menu > System > Scheduled Tasks`
 
 ```
-*/1 * * * * sleep 50; /root/interfaces-watcher
+*/1 * * * * /root/interfaces-watcher
 ```
 
 That code will execute `/root/interfaces-watcher` every minute. `Recommended`.
@@ -38,4 +38,4 @@ That code will execute `/root/interfaces-watcher` every minute. `Recommended`.
 Notes
 -----
 
-Tested on `Dell Inc. DW5821e Snapdragon X20 LTE` without any downtime.
+Tested on `Dell Inc. DW5821e Snapdragon X20 LTE`, downtime `< 2 seconds`.

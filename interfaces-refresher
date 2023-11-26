@@ -5,11 +5,18 @@
 
 touch /tmp/interfaces-refresher.lck
 
-ifdown mm
-ifdown wwan0
-
 ifup mm
+
+while true; do
+  if [[ $(ifstatus mm | jq -r '.up') == "true" ]]; then
+    break
+  fi
+  sleep 1
+done
+
 ifup wwan0
 
 # cleanup interfaces-refresher
 atq -q r | awk '{ print $1 }' | xargs atrm
+
+exit 0

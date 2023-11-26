@@ -20,6 +20,8 @@ if [[ $IF1_up == "false" ]] || [[ $IF2_up == "false" ]]; then
   exit 0
 fi
 
+rm /tmp/interfaces-refresher.lck
+
 # check if interfaces-refresher is already added
 if [[ "$(atq -q r | wc -l)" -gt 0 ]]; then
   exit 0
@@ -28,15 +30,17 @@ fi
 IF2_uptime=$(echo $IF2_data | awk '{ print $2 }')
 IF2_leasetime=$(echo $IF2_data | awk '{ print $3 }')
 
-datetime_refresh_interfaces_timestamp=$((($timestamp-$IF2_uptime-60)+$IF2_leasetime))
-datetime_refresh_interfaces=$(date -d "@$datetime_refresh_interfaces_timestamp" +"%H:%M")
+refresh_interfaces_timestamp=$((($timestamp-$IF2_uptime)+$IF2_leasetime))
+refresh_interfaces_datetime=$(date -d "@$refresh_interfaces_timestamp" +"%H:%M")
+delay=$(($(date -d "@$refresh_interfaces_timestamp" +"%S")-2))
+delay=$(($delay > 0 ? $delay : 0))
 
-if [[ $(($datetime_refresh_interfaces_timestamp-60)) -le $(date +%s) ]]; then
+if [[ $(($refresh_interfaces_timestamp)) -le $(date +%s) ]]; then
   /root/interfaces-refresher
   exit 0
 fi
 
-rm /tmp/interfaces-refresher.lck
-
 # send to at
-at -q r -f /root/interfaces-refresher "$datetime_refresh_interfaces"
+cat << EOF | at -q r "$refresh_interfaces_datetime"
+sleep $delay; /root/interfaces-refresher
+EOF
