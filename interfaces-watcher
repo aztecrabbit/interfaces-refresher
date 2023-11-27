@@ -6,11 +6,10 @@
 IF1="mm"
 IF2="wwan0"
 
-IF1_up=$(ifstatus $IF1 | jq -r '"\(.up)"')
+IF1_data=$(ifstatus $IF1 | jq -r '"\(.up) \(.uptime)"')
+IF1_up=$(echo $IF1_data | awk '{ print $1 }')
 
-timestamp=$(date +%s)
-
-IF2_data=$(ifstatus $IF2 | jq -r '"\(.up) \(.uptime) \(.data.leasetime)"')
+IF2_data=$(ifstatus $IF2 | jq -r '"\(.up) \(.data.leasetime)"')
 IF2_up=$(echo $IF2_data | awk '{ print $1 }')
 
 if [[ $IF1_up == "false" ]] || [[ $IF2_up == "false" ]]; then
@@ -20,23 +19,25 @@ if [[ $IF1_up == "false" ]] || [[ $IF2_up == "false" ]]; then
   exit 0
 fi
 
-rm /tmp/interfaces-refresher.lck
+rm -f /tmp/interfaces-refresher.lck
 
 # check if interfaces-refresher is already added
 if [[ "$(atq -q r | wc -l)" -gt 0 ]]; then
   exit 0
 fi
 
-IF2_uptime=$(echo $IF2_data | awk '{ print $2 }')
-IF2_leasetime=$(echo $IF2_data | awk '{ print $3 }')
+timestamp=$(date +%s)
 
-refresh_interfaces_timestamp=$((($timestamp-$IF2_uptime)+$IF2_leasetime))
+IF1_uptime=$(echo $IF1_data | awk '{ print $2 }')
+IF2_leasetime=$(echo $IF2_data | awk '{ print $2 }')
+
+refresh_interfaces_timestamp=$((($timestamp-$IF1_uptime)+$IF2_leasetime))
 refresh_interfaces_datetime=$(date -d "@$refresh_interfaces_timestamp" +"%H:%M")
-delay=$(($(date -d "@$refresh_interfaces_timestamp" +"%S")-2))
-delay=$(($delay > 0 ? $delay : 0))
+delay=$(date -d "@$refresh_interfaces_timestamp" +"%S")
 
-if [[ $(($refresh_interfaces_timestamp)) -le $(date +%s) ]]; then
-  /root/interfaces-refresher
+if [[ $(($refresh_interfaces_timestamp-$delay)) -le $(date +%s) ]]; then
+  at -q r -f /dev/null "00:00"
+  sleep $delay; /root/interfaces-refresher
   exit 0
 fi
 
