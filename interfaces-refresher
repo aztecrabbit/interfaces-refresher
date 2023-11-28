@@ -7,10 +7,15 @@ touch /tmp/interfaces-refresher.lck
 
 ifup mm
 
+i=0
 while true; do
   if [[ $(ifstatus mm | jq -r '.up') == "true" ]]; then
     break
   fi
+  if [[ $i -eq 2 ]]; then
+    ifup mm
+  fi
+  i=$((i+1))
   sleep 1
 done
 
