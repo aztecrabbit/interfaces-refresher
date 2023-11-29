@@ -22,7 +22,7 @@ fi
 rm -f /tmp/interfaces-refresher.lck
 
 # check if interfaces-refresher is already added
-if [[ "$(atq -q r | wc -l)" -gt 0 ]]; then
+if [[ "$(atq -q r | wc -l)" -gt 0 ]] || [[ "$(atq -q = | wc -l)" -gt 0 ]]; then
   exit 0
 fi
 
