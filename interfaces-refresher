@@ -12,7 +12,7 @@ while true; do
   if [[ $(ifstatus mm | jq -r '.up') == "true" ]]; then
     break
   fi
-  if [[ $i -eq 2 ]]; then
+  if [[ $i -eq 2 ]] || [[ $i -eq 5 ]] || [[ $i -eq 10 ]]; then
     ifup mm
   fi
   i=$((i+1))
