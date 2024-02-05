@@ -24,4 +24,7 @@ ifup wwan0
 # cleanup interfaces-refresher
 atq -q r | awk '{ print $1 }' | xargs atrm
 
+# openclash reload firewall
+/etc/init.d/openclash reload firewall
+
 exit 0
