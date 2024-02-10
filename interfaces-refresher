@@ -12,7 +12,10 @@ while true; do
   if [[ $(ifstatus mm | jq -r '.up') == "true" ]]; then
     break
   fi
-  if [[ $i -eq 2 ]] || [[ $i -eq 5 ]] || [[ $i -eq 10 ]]; then
+  if [[ $i -eq 30 ]]; then
+    exit 1
+  fi
+  if [[ $i -eq 2 ]] || [[ $i -eq 5 ]] || [[ $i -eq 10 ]] || [[ $i -eq 20 ]]; then
     ifup mm
   fi
   i=$((i+1))
@@ -26,5 +29,25 @@ atq -q r | awk '{ print $1 }' | xargs atrm
 
 # openclash reload firewall
 /etc/init.d/openclash reload firewall
+
+# close all connections if ip prefix is 10. or 100.
+i=0
+ip_log="/tmp/interfaces-refresher-ip.log"
+rm -f $ip_log
+while true; do
+  curl 'http://192.168.1.1:9090/connections' -X DELETE -H 'Authorization: Bearer darktunnel'
+  ip=$(curl icanhazip.com)
+  echo $ip >> $ip_log
+  if [[ $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    if [[ $ip != 10.* ]] && [[ $ip != 100.* ]]; then
+      break
+    fi
+  fi
+  if [[ $i -eq 120 ]]; then
+    exit 1
+  fi
+  i=$((i+1))
+  sleep 1
+done
 
 exit 0
