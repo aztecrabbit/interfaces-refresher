@@ -14,7 +14,7 @@ IF2_up=$(echo $IF2_data | awk '{ print $1 }')
 
 if [[ $IF1_up == "false" ]] || [[ $IF2_up == "false" ]]; then
   if [[ ! -f /tmp/interfaces-refresher.lck ]]; then
-    /root/interfaces-refresher
+    /root/interfaces-refresher/interfaces-refresher
   fi
   exit 0
 fi
@@ -37,11 +37,11 @@ delay=$(date -d "@$refresh_interfaces_timestamp" +"%S")
 
 if [[ $(($refresh_interfaces_timestamp-$delay)) -le $(date +%s) ]]; then
   at -q r -f /dev/null "00:00"
-  sleep $delay; /root/interfaces-refresher
+  sleep $delay; /root/interfaces-refresher/interfaces-refresher
   exit 0
 fi
 
 # send to at
 cat << EOF | at -q r "$refresh_interfaces_datetime"
-sleep $delay; /root/interfaces-refresher
+sleep $delay; /root/interfaces-refresher/interfaces-refresher
 EOF
